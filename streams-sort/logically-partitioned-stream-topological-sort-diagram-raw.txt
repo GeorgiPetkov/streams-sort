@@ -1,0 +1,9 @@
+Topologies:
+   Sub-topology: 0
+    Source: input-stream (topics: [input])
+      --> flat-map-values-to-resolved-events
+    Processor: flat-map-values-to-resolved-events (stores: [waiting-events, resolved-events])
+      --> sink-to-output
+      <-- input-stream
+    Sink: sink-to-output (topic: output)
+      <-- flat-map-values-to-resolved-events

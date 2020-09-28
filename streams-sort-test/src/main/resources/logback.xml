@@ -1,0 +1,14 @@
+<configuration>
+    <contextName>${HOSTNAME}</contextName>
+    <property name="PATTERN" value="%date{ISO8601,UTC}Z %contextName %-5level [%thread] %logger - %message%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

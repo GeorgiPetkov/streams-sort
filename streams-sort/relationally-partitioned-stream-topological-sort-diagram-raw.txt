@@ -1,0 +1,41 @@
+# Note: The last change which adds KStraem#repartition is not reflected here to keep the diagram simpler.
+Topologies:
+   Sub-topology: 0
+    Source: input-stream (topics: [input])
+      --> split-into-independent-and-dependent-events
+    Processor: split-into-independent-and-dependent-events (stores: [])
+      --> independent-events, dependent-events
+      <-- input-stream
+    Source: resolved-events-stream (topics: [internal-resolved-events-repartition-topic])
+      --> resolved-dependents-direct-waiting-events
+    Processor: independent-events (stores: [])
+      --> independent-and-their-direct-waiting-events
+      <-- split-into-independent-and-dependent-events
+    Processor: independent-and-their-direct-waiting-events (stores: [waiting-events, resolved-events])
+      --> intermediate-merge
+      <-- independent-events
+    Processor: resolved-dependents-direct-waiting-events (stores: [waiting-events, resolved-events])
+      --> intermediate-merge
+      <-- resolved-events-stream
+    Processor: dependent-events (stores: [])
+      --> immediately-resolved-dependent-events
+      <-- split-into-independent-and-dependent-events
+    Processor: immediately-resolved-dependent-events (stores: [waiting-events, resolved-events])
+      --> final-merge
+      <-- dependent-events
+    Processor: intermediate-merge (stores: [])
+      --> final-merge
+      <-- independent-and-their-direct-waiting-events, resolved-dependents-direct-waiting-events
+    Processor: final-merge (stores: [])
+      --> skip-independent-events, sink-to-output
+      <-- intermediate-merge, immediately-resolved-dependent-events
+    Processor: skip-independent-events (stores: [])
+      --> adapt-partition-key-and-format
+      <-- final-merge
+    Processor: adapt-partition-key-and-format (stores: [])
+      --> sink-to-resolved-events
+      <-- skip-independent-events
+    Sink: sink-to-resolved-events (topic: internal-resolved-events-repartition-topic)
+      <-- adapt-partition-key-and-format
+    Sink: sink-to-output (topic: output)
+      <-- final-merge

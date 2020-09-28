@@ -1,0 +1,13 @@
+Copy sources on remote machine:
+    scp -r -P <port> <source> <user@host:destination>
+
+Track test progress:
+    docker-compose exec kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group books-app --describe
+    docker-compose exec kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic times --from-beginning
+    docker-compose exec kafka /opt/kafka/bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic input
+
+Run tests:
+    mvn package -f ./streams-sort/pom.xml && \
+    docker build --tag books-app:latest streams-sort/streams-sort-test && \
+    docker image prune -f && \
+    WORK_DIR=$(pwd) BOOKS=1000 CHAPTERS=10 PARAGRAPHS=10 WORDS=100 java -cp streams-sort/streams-sort-test/target/streams-sort-test-1.0-SNAPSHOT-jar-with-dependencies.jar georgi.petkov.streams.sort.StreamsSortTest
